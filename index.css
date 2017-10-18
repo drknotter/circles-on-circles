@@ -1,0 +1,272 @@
+body {
+  font-family: Roboto;
+  margin: 0px;
+}
+table {
+  border: none;
+  margin: 0px
+  padding: 0px;
+  border-spacing: 0px;
+}
+td {
+  padding: 0px;
+}
+.noselect {
+  user-select: none;
+}
+
+#circles, #paint {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+#settings {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  background: rgba(230,230,230,0.7);
+  padding-right: 40px;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+#settingsGroups {
+  height: 100%;
+  overflow: scroll;
+  padding: 10px;
+}
+#settingsName {
+  margin-bottom: 10px;
+  margin-left: 10px;
+  font-size: 120%;
+  font-weight: bold;
+}
+#settingsToggle {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  margin: 10px;
+  border-radius: 15px;
+  font-size: 20px;
+  line-height: 30px;
+}
+#settingsToggle:hover {
+  background: #cccccc;
+  cursor: pointer;
+}
+
+#controls {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  display: inline;
+  background: rgba(230,230,230,0.7);
+}
+#controls table {
+  border-spacing: 10px;
+}
+.control {
+  background: rgba(200,200,200,0.7);
+  padding: 5px;
+  text-align: center;
+}
+.control:hover {
+  background: #bbbbbb;
+  cursor: pointer;
+}
+
+.setting {
+  width: 120px;
+  font-size: 90%;
+}
+.settingGroup {
+  background: rgba(190, 190, 190, 0.7);
+  margin-bottom: 10px;
+  border-spacing: 10px;
+}
+.settingGroup th {
+  text-align: left;
+}
+.settingGroup: td input {
+  padding-left: 20px;
+}
+
+#settingsManagerBackground {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+#settingsManagerContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  padding: 20px;
+  background: #ffffff;
+}
+
+#settingsManager tr:nth-child(even) {
+  background: #dddddd;
+}
+#settingsManager .name {
+  text-align: left;
+  padding: 12px;
+}
+#settingsManager .open {
+  text-align: center;
+  padding: 4px 12px;
+}
+#settingsManager .delete {
+  text-align: center;
+  padding: 4px;
+}
+
+#settingsManager .control>div {
+  background: #bbbbbb;
+  padding: 8px;
+}
+#settingsManager .control>div:hover {
+  background: #eeeeee;
+  cursor: pointer;
+}
+
+#colorContainer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+}
+#color {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: auto;
+  margin: 10px;
+  margin-top: 25px;
+}
+#gradient {
+}
+#currentTimePointer {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  line-height: 15px;
+  left: 0%;
+  bottom: 0%;
+  transform: translateX(-50%) translateY(100%);
+  text-align: center;
+  font-size: 15px;
+}
+#handlePointerGroup {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+.handlePointer {
+  position: absolute;
+  text-align: center;
+  transform: translateY(-100%);
+  font-size: 15px;
+  width: 15px;
+  height: 13px;
+  line-height: 15px;
+  left: 0%;
+  top: 0px;
+}
+.handlePointer:hover {
+  cursor: ew-resize;
+}
+.handlePointerOptions {
+  background: #ccc;
+  cursor: auto; 
+  width: 100px;
+  padding: 2.5px 2.5px;
+  transform: translateX(-100%);
+  table-layout: fixed;
+  border: none;
+  border-spacing: 0rem;
+}
+.copyHandle {
+  font-size: 140%;
+  line-height: 18px;
+}
+.handleAction {
+  background: #888;
+  height: 20px;
+  color: #fff;
+  padding: 5px;
+  margin: 2.5px;
+  text-align: center;
+}
+.handleAction:hover {
+  cursor: pointer;
+}
+
+#colorPickerContainer {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+}
+#colorPicker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 300px;
+  transform: translateX(-50%) translateY(-50%);
+  background: #cccccc;
+}
+#colorPicker canvas {
+  padding: 0px;
+  margin: 10px;
+  margin-right: 0px
+}
+#hueSaturation {
+  width: 180px;
+  height: 180px;
+/*  background: red;*/
+}
+#lightness {
+  width: 40px;
+  height: 180px;
+/*  background: green;*/
+}
+#alpha {
+  width: 40px;
+  height: 180px;
+/*  background: blue;*/
+}
+#currentPickerColor {
+  width: 280px;
+  height: 40px;
+  margin-left: 10px;
+}
+#explicitColorPickerInputs {
+  margin: 10px;
+}
+ #explicitColorPickerInputs>table {
+  table-layout: fixed;
+  border: none;
+  border-spacing: 0px;
+  width: 100%;
+}
+#explicitColorPickerInputs>table .space {
+  width: 10px;
+}
+#explicitColorPickerInputs>table td input {
+  width: 100%;
+}

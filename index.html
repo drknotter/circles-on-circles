@@ -1,0 +1,126 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="Circle.js"></script>
+    <script type="text/javascript" src="Link.js"></script>
+    <script type="text/javascript" src="ColorHandle.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="snap.svg-min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="index.css">
+  </head>
+  <body>
+    <canvas id="paint"></canvas>
+    <svg id="circles"></svg>
+    <div id="colorContainer">
+      <div id="color">
+        <span id="currentTimePointer">&#x25b2;</span>
+        <div id="handlePointerGroup"></div>
+        <canvas id="gradient" width="200px" height="20px"></canvas>
+      </div>
+    </div>
+    <div id="settings">
+      <div id="settingsGroups">
+        <div id="settingsName"></div>
+        <table class="settingGroup">
+          <tr><th>Radii</th></tr>
+          <tr><td><input id="r0" class="setting" type="number" value="300"></td></tr>
+          <tr><td><input id="r10" class="setting" type="number" value="80"></td></tr>
+          <tr><td><input id="r11" class="setting" type="number" value="20"></td></tr>
+          <tr><td><input id="r20" class="setting" type="number" value="100"></td></tr>
+          <tr><td><input id="r21" class="setting" type="number" value="20"></td></tr>
+        </table>
+        <table class="settingGroup">
+          <tr><th>Angles</th></tr>
+          <tr><td><input id="a10" class="setting" type="number" value="0" step="0.01"></td></tr>
+          <tr><td><input id="a11" class="setting" type="number" value="0" step="0.01"></td></tr>
+          <tr><td><input id="a12" class="setting" type="number" value="0" step="0.01"></td></tr>
+          <tr><td><input id="a20" class="setting" type="number" value="0.79" step="0.01"></td></tr>
+          <tr><td><input id="a21" class="setting" type="number" value="0.79" step="0.01"></td></tr>
+          <tr><td><input id="a22" class="setting" type="number" value="0.79" step="0.01"></td></tr>
+        </table>
+        <table class="settingGroup">
+          <tr><th>Speeds</th></tr>
+          <tr><td><input id="s0" class="setting" type="number" value="0.1" step="0.01"></td></tr>
+          <tr><td><input id="s10" class="setting" type="number" value="10" step="0.01"></td></tr>
+          <tr><td><input id="s11" class="setting" type="number" value="-0.1" step="0.01"></td></tr>
+          <tr><td><input id="s20" class="setting" type="number" value="0" step="0.01"></td></tr>
+          <tr><td><input id="s21" class="setting" type="number" value="10.2" step="0.01"></td></tr>
+        </table>
+        <table class="settingGroup">
+          <tr><th>Lengths</th></tr>
+          <tr><td><input id="l1" class="setting" type="number" value="300"></td></tr>
+          <tr><td><input id="l2" class="setting" type="number" value="200"></td></tr>
+        </table>
+        <table class="settingGroup">
+          <tr><th>Start Time</th></tr>
+          <tr><td><input type="number" value="0" id="startTime" class="setting"></td></tr>
+        </table>
+        <table class="settingGroup">
+          <tr><th>End Time</th></tr>
+          <tr><td><input type="number" value="120" id="endTime" class="setting"></td></tr>
+        </table>
+        <table class="settingGroup">
+          <tr><th>Resolution</th></tr>
+          <tr><td><input type="number" value="240" id="resolution" class="setting"></td></tr>
+        </table>
+        <table class="settingGroup">
+          <tr><th>Time Multiplier</th></tr>
+          <tr><td><input type="number" value="1" id="timeMultiplier" class="setting" min="0" step="0.1"></td></tr>
+        </table>
+      </div>
+      <div id="settingsToggle">
+        &#x25B6;
+      </div>
+    </div>
+    <div id="controls">
+      <table>
+        <tr><td><div class="control" id="animate">Start Animation</div></td></tr>
+        <tr><td><div class="control" id="hide">Hide Mechanics</div></td></tr>
+        <tr><td><div class="control" id="render">Start Render</div></td></tr>
+        <tr><td><div class="control" id="save">Save Settings</div></td></tr>
+        <tr><td><div class="control" id="manage">Manage Settings</div></td></tr>
+      </table>
+    </div>
+    <div id="settingsManagerBackground">
+      <div id="settingsManagerContainer">
+        <table id="settingsManager"></table>
+      </div>
+    </div>
+    <div id="colorPickerContainer">
+      <div id="colorPicker">
+        <canvas id="hueSaturation"></canvas><canvas id="lightness"></canvas><canvas id="alpha"></canvas>
+        <div id="currentPickerColor"></div>
+        <div id="explicitColorPickerInputs">
+          <table>
+            <tr>
+              <th>R</th>
+              <th class="space"></th>
+              <th>G</th>
+              <th class="space"></th>
+              <th>B</th>
+              <th class="space"></th>
+              <th>A</th>
+              <th class="space"></th>
+              <th>Offset</th>
+            </tr>
+            <tr>
+              <td><input id="redInput" type="number" min="0" max="255"></td>
+              <td class="space"></td>
+              <td><input id="greenInput" type="number" min="0" max="255"></td>
+              <td class="space"></td>
+              <td><input id="blueInput" type="number" min="0" max="255"></td>
+              <td class="space"></td>
+              <td><input id="alphaInput" type="number" min="0" max="255"></td>
+              <td class="space"></td>
+              <td><input id="offsetInput" type="number" min="0" max="1" step="0.01"></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
