@@ -30,20 +30,20 @@ var currentColorPickerTarget;
 var currentResolution = 240;
 
 $(window).on('load', function() {
+  $(window).resize(handleResize);
   handleResize();
   toggleSettingsTray();
+  restoreParameters();
+  update($('#startTime').val(), true);
 });
 
 $( document ).ready(function() {
-  $(window).resize(handleResize);
 
   var circlesSvg = Snap("#circles");
   canvasSvg = circlesSvg.g();
   canvasPaint = document.getElementById('paint').getContext('2d');
 
   initialize();
-  restoreParameters();
-  update($('#startTime').val(), true);
 
   document.getElementById('hueSaturation').width = 180;
   document.getElementById('hueSaturation').height = 180;
@@ -483,6 +483,15 @@ function handleResize() {
   canvasPaint.canvas.width = width;
   canvasPaint.canvas.height = height;
   canvasPaint.setTransform(1, 0, 0, 1, width/2, height/2);
+
+  var factor = 0.9 * Math.min(width, height) / (2 * defaultParameters.r0);
+  defaultParameters.r0 *= factor;
+  defaultParameters.r10 *= factor;
+  defaultParameters.r11 *= factor;
+  defaultParameters.r20 *= factor;
+  defaultParameters.r21 *= factor;
+  defaultParameters.l1 *= factor;
+  defaultParameters.l2 *= factor;
 }
 
 function renderSetting(name) {
