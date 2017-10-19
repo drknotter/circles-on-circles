@@ -138,23 +138,13 @@ td {
   cursor: pointer;
 }
 
-#colorContainer {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0px;
-  left: 0px;
-  overflow: hidden;
-}
 #color {
   position: absolute;
   top: 0px;
   right: 0px;
   width: auto;
-  margin: 10px;
+  margin: 25px;
   margin-top: 25px;
-}
-#gradient {
 }
 #currentTimePointer {
   position: absolute;

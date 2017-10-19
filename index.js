@@ -382,6 +382,7 @@ var currentTimeMultiplier;
 function startAnimation() {
   isAnimating = true;
   clearPaint();
+  hideHandlePointerOptions();
   startTime = Number($('#startTime').val());
   endTime = Number($('#endTime').val());
   currentTimeMultiplier = Number($('#timeMultiplier').val());
@@ -426,6 +427,7 @@ var currentRenderTime;
 function startRendering() {
   isRendering = true;
   clearPaint();
+  hideHandlePointerOptions();
   startTime = currentRenderTime = Number($('#startTime').html());
   endTime = Number($('#endTime').val());
   setTimeout(renderSegment);
@@ -865,7 +867,8 @@ function initializeHandlePointer(handlePointer) {
     currentHoveringHandle = null;
     $(this).data('dragInfo', {
       'startPosition': handlePointer.position().left,
-      'startScreenX': event.screenX
+      'startScreenX': event.screenX,
+      'downTime': event.timeStamp
     });
   });
   handlePointer.on('mouseenter', function(event) {
@@ -873,13 +876,26 @@ function initializeHandlePointer(handlePointer) {
     if (isRendering || isAnimating) {
       return;
     }
-    currentHoveringHandle = $(this);
-    showHandlePointerOptionsId = setTimeout(function(){showHandlePointerOptions($(this));}, 750);
   });
   handlePointer.on('mouseleave', function(event) {
-    clearTimeout(showHandlePointerOptionsId)
     hideHandlePointerOptionsId = setTimeout(hideHandlePointerOptions, 750);
   });
+  handlePointer.on('click', function(event) {
+    if (isRendering || isAnimating) {
+      return;
+    }
+    if (event.timeStamp - $(this).data('dragInfo').downTime > 500) {
+      return;
+    }
+
+    hideHandlePointerOptions();
+    if ($(this).find('.handlePointerOptions').is(':hidden')) {
+      currentHoveringHandle = $(this);
+      showHandlePointerOptions($(this));
+    } else {
+      currentHoveringHandle = null;
+    }
+  })
   var options = handlePointer.find('.handlePointerOptions');
   options.hide();
   options.find('.editHandle').click(function(event) {
