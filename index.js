@@ -29,6 +29,11 @@ var colorPickerOffset = 0;
 var currentColorPickerTarget;
 var currentResolution = 240;
 
+$(window).on('load', function() {
+  handleResize();
+  toggleSettingsTray();
+});
+
 $( document ).ready(function() {
   $(window).resize(handleResize);
 
@@ -40,7 +45,6 @@ $( document ).ready(function() {
   restoreParameters();
   update($('#startTime').val(), true);
 
-  handleResize();
   document.getElementById('hueSaturation').width = 180;
   document.getElementById('hueSaturation').height = 180;
   document.getElementById('lightness').width = 40;
@@ -132,7 +136,6 @@ $( document ).ready(function() {
   $('#settings').on('mouseleave', function(event) {
     closeSettingsTray();
   })
-  toggleSettingsTray();
   $('.setting').change(function(event) {
     stopAnimation(true);
     stopRendering(true);
