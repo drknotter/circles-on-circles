@@ -415,7 +415,7 @@ function animate(timestamp) {
     first = false;
   }
 
-  if (currentAnimationTime < endTime) {
+  if (currentAnimationTime - startTime < currentTimeMultiplier * (endTime - startTime)) {
     requestAnimationFrame(animate);
   } else {
     stopAnimation();
