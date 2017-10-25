@@ -1,5 +1,7 @@
-var defaultParameters = {"r0":400,"r10":50,"r11":50,"r20":50,"r21":50,"s0":0.1,"s10":30,"s11":0,"s20":30,"s21":0,"a10":0,"a11":0,"a12":0,"a20":0.57,"a21":0,"a22":0,"l1":220,"l2":220,"startTime":0,"endTime":62.83,"resolution":240,"timeMultiplier":1};
+var defaultParameters = {"r0":400,"r10":50,"r11":50,"r20":50,"r21":50,"s0":0.1,"s10":30,"s11":0,"s20":30,"s21":0,"a10":0,"a11":0,"a12":0,"a20":0.57,"a21":0,"a22":0,"l1":220,"l2":220,"startTime":0,"endTime":62.83,"resolution":240,"timeMultiplier":1,"circleDepth":2};
 var handlePointerTemplate = '<span class="handlePointer"><div style="transform: translateX(-50%); width: 15px;">&#x25bc;</div><table class="handlePointerOptions"><tr><td><div class="handleAction deleteHandle">&#x232b;</div></td><td><div class="handleAction copyHandle">&#x2398</div></td><td><div class="handleAction editHandle">&#x270E;</div></td></tr></table></span>';
+var radiusInputTemplate = '<tr><td><input class="setting" type="number"></td></tr>';
+var angleSpeedInputTemplate = '<tr><td><input class="setting" type="number" step="0.01"></td></tr>';
 
 var N = 2;
 var M = 3;
@@ -7,6 +9,7 @@ var M = 3;
 var canvasSvg;
 var canvasPaint;
 var lineColor = 'rgba(0, 0, 0, 0.3)';
+var circleDepth;
 var circles;
 var link;
 
@@ -38,12 +41,9 @@ $(window).on('load', function() {
 });
 
 $( document ).ready(function() {
-
   var circlesSvg = Snap("#circles");
   canvasSvg = circlesSvg.g();
   canvasPaint = document.getElementById('paint').getContext('2d');
-
-  initialize();
 
   document.getElementById('hueSaturation').width = 180;
   document.getElementById('hueSaturation').height = 180;
@@ -85,6 +85,7 @@ $( document ).ready(function() {
     var parametersName = prompt("Sketch name", appData.currentParametersName ? appData.currentParametersName : "My Sketch");
     saveParameters(parametersName);
     restoreParameters();
+    updateParameters();
   });
   $('#manage').click(function(event) {
     stopAnimation();
@@ -136,11 +137,6 @@ $( document ).ready(function() {
   $('#settings').on('mouseleave', function(event) {
     closeSettingsTray();
   })
-  $('.setting').change(function(event) {
-    stopAnimation(true);
-    stopRendering(true);
-    updateParameters();
-  });
 
   $('#handlePointerGroup').click(function(event) {
     if (event.target.id === 'handlePointerGroup') {
@@ -161,7 +157,6 @@ $( document ).ready(function() {
     currentDraggingHandle = null;
   });
 
-  initializeFocusHandlers();
   paintColorGradient();
   paintColorPicker();
   initializeColorPickerHandlers();
@@ -179,42 +174,81 @@ function getAppData() {
   return appData;
 }
 
+function getCurrentParameters() {
+  var appData = getAppData();
+  var parameters = appData.currentParametersName && appData.parameters[appData.currentParametersName] ? appData.parameters[appData.currentParametersName] : defaultParameters;
+  return {
+    'name': appData.currentParametersName || "New Sketch",
+    'parameters': parameters
+  };
+}
+
 function initialize() {
+  initializeCircles();
+  initializeInputs();
+  initializeFocusHandlers();
+}
+
+function initializeCircles() {
+  canvasSvg.clear();
   circles = [];
 
   circles.push(new Circle(0, 0, 0, null));
-  circles.push(new Circle(0, 0, 0, circles[circles.length - 1]));
-  circles.push(new Circle(0, 0, 0, circles[circles.length - 1]));
-  circles.push(new Circle(5, 0, 0, circles[circles.length - 1], {}));
+  for (let i=0; i<circleDepth+1; i++) {
+    circles.push(new Circle(i==circleDepth ? 5 : 0, 0, 0, circles[circles.length - 1], i==circleDepth ? {} : false));
+  }
 
-  circles.push(new Circle(0, 0, 0, circles[0]));
-  circles.push(new Circle(0, 0, 0, circles[circles.length - 1]));
-  circles.push(new Circle(5, 0, 0, circles[circles.length - 1], {}));
+  for (let i=0; i<circleDepth+1; i++) {
+    circles.push(new Circle(i==circleDepth ? 5 : 0, 0, 0, circles[i==0 ? 0 : circles.length - 1], i==circleDepth ? {} : false));
+  }
 
-  link = new Link(0, 0, circles[3], circles[6]);
+  link = new Link(0, 0, circles[circleDepth+1], circles[2 * (circleDepth+1)]);
+}
+
+function initializeInputs() {
+  $('#radii').find('td').parent().remove();
+  $('#angles').find('td').parent().remove();
+  $('#speeds').find('td').parent().remove();
+  addCircleInput(radiusInputTemplate, 'r0', $('#radii'));
+  addCircleInput(angleSpeedInputTemplate, 's0', $('#speeds'));
+  for (let i=1; i<=2; i++) {
+    for (let j=0; j<circleDepth+1; j++) {
+      if (j<circleDepth) {
+        addCircleInput(radiusInputTemplate, ('r'+i)+j, $('#radii'));
+        addCircleInput(angleSpeedInputTemplate, ('s'+i)+j, $('#speeds'));
+      }
+      addCircleInput(angleSpeedInputTemplate, ('a'+i)+j, $('#angles'));
+    }
+  }
+  $('.setting').change(function(event) {
+    stopAnimation(true);
+    stopRendering(true);
+    updateParameters();
+  });
+}
+
+function addCircleInput(template, id, parent) {
+  let row = $(template);
+  row.find('input').attr('id', id);
+  parent.append(row);
 }
 
 function initializeFocusHandlers() {
   var focusMap = {
-    '#r0': circles[0].circle,
-    '#r10':circles[1].circle,
-    '#r11':circles[2].circle,
-    '#r20':circles[4].circle,
-    '#r21':circles[5].circle,
+    '#r0':circles[0].circle,
     '#s0':circles[0].circle,
-    '#s10':circles[1].circle,
-    '#s11':circles[2].circle,
-    '#s20':circles[4].circle,
-    '#s21':circles[5].circle,
-    '#a10':circles[1].circle,
-    '#a11':circles[2].circle,
-    '#a12':circles[3].circle,
-    '#a20':circles[4].circle,
-    '#a21':circles[5].circle,
-    '#a22':circles[6].circle,
     '#l1':link.line1,
     '#l2':link.line2,
   };
+  for (let i=1; i<=2; i++) {
+    for (let j=0; j<circleDepth + 1; j++) {
+      if (j<circleDepth) {
+        focusMap[('#r'+i)+j] = circles[(i - 1) * (circleDepth + 1) + (j + 1)].circle;
+        focusMap[('#s'+i)+j] = circles[(i - 1) * (circleDepth + 1) + (j + 1)].circle;
+      }
+      focusMap[('#a'+i)+j] = circles[(i - 1) * (circleDepth + 1) + (j + 1)].circle;
+    }
+  }
   for (let id in focusMap) {
     $(id).focus(function(event) {
       if (!isAnimating && !isRendering) {
@@ -228,22 +262,39 @@ function initializeFocusHandlers() {
 }
 
 function updateParameters() {
+  var newCircleDepth = Number($('#circleDepth').val());
+  if (newCircleDepth != circleDepth) {
+    var cachedParameters = jsonifyCurrentParameters();
+    circleDepth = Math.max(Math.min(newCircleDepth, 5), 1);
+    initialize();
+    restoreFrom($('#settingsName').html(), cachedParameters);
+  }
+
   circles[0].r = Number($('#r0').val());
-  circles[1].r = Number($('#r10').val());
-  circles[2].r = Number($('#r11').val());
-  circles[4].r = Number($('#r20').val());
-  circles[5].r = Number($('#r21').val());
   circles[0].dTheta = Number($('#s0').val());
-  circles[1].dTheta = Number($('#s10').val());
-  circles[2].dTheta = Number($('#s11').val());
-  circles[4].dTheta = Number($('#s20').val());
-  circles[5].dTheta = Number($('#s21').val());
-  circles[1].initialTheta = Number($('#a10').val());
-  circles[2].initialTheta = Number($('#a11').val());
-  circles[3].initialTheta = Number($('#a12').val());
-  circles[4].initialTheta = Number($('#a20').val());
-  circles[5].initialTheta = Number($('#a21').val());
-  circles[6].initialTheta = Number($('#a22').val());
+  // circles[1].r = Number($('#r10').val());
+  // circles[2].r = Number($('#r11').val());
+  // circles[4].r = Number($('#r20').val());
+  // circles[5].r = Number($('#r21').val());
+  // circles[1].dTheta = Number($('#s10').val());
+  // circles[2].dTheta = Number($('#s11').val());
+  // circles[4].dTheta = Number($('#s20').val());
+  // circles[5].dTheta = Number($('#s21').val());
+  // circles[1].initialTheta = Number($('#a10').val());
+  // circles[2].initialTheta = Number($('#a11').val());
+  // circles[3].initialTheta = Number($('#a12').val());
+  // circles[4].initialTheta = Number($('#a20').val());
+  // circles[5].initialTheta = Number($('#a21').val());
+  // circles[6].initialTheta = Number($('#a22').val());
+  for (let i=1; i<=2; i++) {
+    for (let j=0; j<circleDepth + 1; j++) {
+      if (j<circleDepth) {
+        circles[(i - 1) * (circleDepth + 1) + (j + 1)].r = Number($(('#r'+i)+j).val());
+        circles[(i - 1) * (circleDepth + 1) + (j + 1)].dTheta = Number($(('#s'+i)+j).val());
+      }
+      circles[(i - 1) * (circleDepth + 1) + (j + 1)].initialTheta = Number($(('#a'+i)+j).val());
+    }
+  }
   link.l1 = Number($("#l1").val());
   link.l2 = Number($("#l2").val());
   currentResolution = Number($('#resolution').val());
@@ -259,24 +310,28 @@ function updateParameters() {
 function saveParameters(name) {
   var appData = getAppData();
   appData.currentParametersName = name;
-  appData.parameters[name] = 
-  {
+  appData.parameters[name] = jsonifyCurrentParameters();
+  localStorage['circles-on-circles'] = JSON.stringify(appData);
+}
+
+function jsonifyCurrentParameters() {
+  var parameters = {
     'r0': circles[0].r,
-    'r10': circles[1].r,
-    'r11': circles[2].r,
-    'r20': circles[4].r,
-    'r21': circles[5].r,
     's0': circles[0].dTheta,
-    's10': circles[1].dTheta,
-    's11': circles[2].dTheta,
-    's20': circles[4].dTheta,
-    's21': circles[5].dTheta,
-    'a10': circles[1].initialTheta,
-    'a11': circles[2].initialTheta,
-    'a12': circles[3].initialTheta,
-    'a20': circles[4].initialTheta,
-    'a21': circles[5].initialTheta,
-    'a22': circles[6].initialTheta,
+    // 'r10': circles[1].r,
+    // 'r11': circles[2].r,
+    // 'r20': circles[4].r,
+    // 'r21': circles[5].r,
+    // 's10': circles[1].dTheta,
+    // 's11': circles[2].dTheta,
+    // 's20': circles[4].dTheta,
+    // 's21': circles[5].dTheta,
+    // 'a10': circles[1].initialTheta,
+    // 'a11': circles[2].initialTheta,
+    // 'a12': circles[3].initialTheta,
+    // 'a20': circles[4].initialTheta,
+    // 'a21': circles[5].initialTheta,
+    // 'a22': circles[6].initialTheta,
     'l1': link.l1,
     'l2': link.l2,
     'startTime': Number($('#startTime').val()),
@@ -284,59 +339,85 @@ function saveParameters(name) {
     'colorHandles': colorHandles,
     'resolution': Number($('#resolution').val()),
     'timeMultiplier': Number($('#timeMultiplier').val()),
+    'circleDepth': circleDepth,
   };
 
-  localStorage['circles-on-circles'] = JSON.stringify(appData);
+  for (let i=1; i<=2; i++) {
+    for (let j=0; j<circleDepth + 1; j++) {
+      if (j<circleDepth) {
+        parameters[('r'+i)+j] = circles[(i - 1) * (circleDepth + 1) + (j + 1)].r;
+        parameters[('s'+i)+j] = circles[(i - 1) * (circleDepth + 1) + (j + 1)].dTheta;
+      }
+      parameters[('a'+i)+j] = circles[(i - 1) * (circleDepth + 1) + (j + 1)].initialTheta;
+    }
+  }
+
+  return parameters;
 }
 
 function restoreParameters() {
-  var appData = getAppData();
-  var parameters = appData.currentParametersName && appData.parameters[appData.currentParametersName] ? appData.parameters[appData.currentParametersName] : defaultParameters;
+  var currentParameters = getCurrentParameters();
+  circleDepth = Math.max(Math.min(currentParameters.parameters.circleDepth || 2, 5), 1);
+
+  var parameters = currentParameters.parameters;
+  var name = currentParameters.name;
+
+  initialize();
+  restoreFrom(name, parameters);
+}
+
+function restoreFrom(name, parameters) {
   circles[0].r = parameters.r0;
-  circles[1].r = parameters.r10;
-  circles[2].r = parameters.r11;
-  circles[4].r = parameters.r20;
-  circles[5].r = parameters.r21;
   circles[0].dTheta = parameters.s0;
-  circles[1].dTheta = parameters.s10;
-  circles[2].dTheta = parameters.s11;
-  circles[4].dTheta = parameters.s20;
-  circles[5].dTheta = parameters.s21;
-  circles[1].initialTheta = parameters.a10;
-  circles[2].initialTheta = parameters.a11;
-  circles[3].initialTheta = parameters.a12;
-  circles[4].initialTheta = parameters.a20;
-  circles[5].initialTheta = parameters.a21;
-  circles[6].initialTheta = parameters.a22;
+
+  for (let i=1; i<=2; i++) {
+    for (let j=0; j<circleDepth + 1; j++) {
+      if (j<circleDepth) {
+        circles[(i - 1) * (circleDepth + 1) + (j + 1)].r = parameters[('r'+i)+j] || 20;
+        circles[(i - 1) * (circleDepth + 1) + (j + 1)].dTheta = parameters[('s'+i)+j] || 0;
+      }
+      circles[(i - 1) * (circleDepth + 1) + (j + 1)].initialTheta = parameters[('a'+i)+j] || 0;
+    }
+  }
   link.l1 = parameters.l1;
   link.l2 = parameters.l2;
   currentResolution = parameters.resolution || 240;
   currentTimeMultiplier = parameters.timeMultiplier || 1;
 
   $('#r0').val(parameters.r0);
-  $('#r10').val(parameters.r10);
-  $('#r11').val(parameters.r11);
-  $('#r20').val(parameters.r20);
-  $('#r21').val(parameters.r21);
   $('#s0').val(parameters.s0);
-  $('#s10').val(parameters.s10);
-  $('#s11').val(parameters.s11);
-  $('#s20').val(parameters.s20);
-  $('#s21').val(parameters.s21);
-  $('#a10').val(parameters.a10);
-  $('#a11').val(parameters.a11);
-  $('#a12').val(parameters.a12);
-  $('#a20').val(parameters.a20);
-  $('#a21').val(parameters.a21);
-  $('#a22').val(parameters.a22);
+  // $('#r10').val(parameters.r10);
+  // $('#r11').val(parameters.r11);
+  // $('#r20').val(parameters.r20);
+  // $('#r21').val(parameters.r21);
+  // $('#s10').val(parameters.s10);
+  // $('#s11').val(parameters.s11);
+  // $('#s20').val(parameters.s20);
+  // $('#s21').val(parameters.s21);
+  // $('#a10').val(parameters.a10);
+  // $('#a11').val(parameters.a11);
+  // $('#a12').val(parameters.a12);
+  // $('#a20').val(parameters.a20);
+  // $('#a21').val(parameters.a21);
+  // $('#a22').val(parameters.a22);
+  for (let i=1; i<=2; i++) {
+    for (let j=0; j<circleDepth + 1; j++) {
+      if (j < circleDepth) {
+        $(('#r'+i)+j).val(parameters[('r'+i)+j] || 20);
+        $(('#s'+i)+j).val(parameters[('s'+i)+j] || 0);
+      }
+      $(('#a'+i)+j).val(parameters[('a'+i)+j] || 0);
+    }
+  }
   $('#l1').val(parameters.l1);
   $('#l2').val(parameters.l2);
   $('#startTime').val(parameters.startTime);
   $('#endTime').val(parameters.endTime);
   $('#resolution').val(currentResolution);
   $('#timeMultiplier').val(currentTimeMultiplier);
+  $('#circleDepth').val(circleDepth);
 
-  $('#settingsName').html(appData.currentParametersName ? appData.currentParametersName : "New Sketch");
+  $('#settingsName').html(name);
 
   colorHandles = [];
   $('.handlePointer').remove();

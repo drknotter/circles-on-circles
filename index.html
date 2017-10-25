@@ -23,35 +23,39 @@
     <div id="settings">
       <div id="settingsGroups">
         <div id="settingsName"></div>
-        <table class="settingGroup">
+        <table class="settingGroup" id="radii">
           <tr><th>Radii</th></tr>
-          <tr><td><input id="r0" class="setting" type="number" value="300"></td></tr>
-          <tr><td><input id="r10" class="setting" type="number" value="80"></td></tr>
-          <tr><td><input id="r11" class="setting" type="number" value="20"></td></tr>
-          <tr><td><input id="r20" class="setting" type="number" value="100"></td></tr>
-          <tr><td><input id="r21" class="setting" type="number" value="20"></td></tr>
+          <tr><td><input id="r0" class="setting" type="number"></td></tr>
+          <tr><td><input id="r10" class="setting" type="number"></td></tr>
+          <tr><td><input id="r11" class="setting" type="number"></td></tr>
+          <tr><td><input id="r20" class="setting" type="number"></td></tr>
+          <tr><td><input id="r21" class="setting" type="number"></td></tr>
         </table>
-        <table class="settingGroup">
+        <table class="settingGroup" id="angles">
           <tr><th>Angles</th></tr>
-          <tr><td><input id="a10" class="setting" type="number" value="0" step="0.01"></td></tr>
-          <tr><td><input id="a11" class="setting" type="number" value="0" step="0.01"></td></tr>
-          <tr><td><input id="a12" class="setting" type="number" value="0" step="0.01"></td></tr>
-          <tr><td><input id="a20" class="setting" type="number" value="0.79" step="0.01"></td></tr>
-          <tr><td><input id="a21" class="setting" type="number" value="0.79" step="0.01"></td></tr>
-          <tr><td><input id="a22" class="setting" type="number" value="0.79" step="0.01"></td></tr>
+          <tr><td><input id="a10" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="a11" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="a12" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="a20" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="a21" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="a22" class="setting" type="number" step="0.01"></td></tr>
         </table>
-        <table class="settingGroup">
+        <table class="settingGroup" id="speeds">
           <tr><th>Speeds</th></tr>
-          <tr><td><input id="s0" class="setting" type="number" value="0.1" step="0.01"></td></tr>
-          <tr><td><input id="s10" class="setting" type="number" value="10" step="0.01"></td></tr>
-          <tr><td><input id="s11" class="setting" type="number" value="-0.1" step="0.01"></td></tr>
-          <tr><td><input id="s20" class="setting" type="number" value="0" step="0.01"></td></tr>
-          <tr><td><input id="s21" class="setting" type="number" value="10.2" step="0.01"></td></tr>
+          <tr><td><input id="s0" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="s10" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="s11" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="s20" class="setting" type="number" step="0.01"></td></tr>
+          <tr><td><input id="s21" class="setting" type="number" step="0.01"></td></tr>
         </table>
         <table class="settingGroup">
           <tr><th>Lengths</th></tr>
           <tr><td><input id="l1" class="setting" type="number" value="300"></td></tr>
           <tr><td><input id="l2" class="setting" type="number" value="200"></td></tr>
+        </table>
+        <table class="settingGroup">
+          <tr><th>Circle Depth</th></tr>
+          <tr><td><input id="circleDepth" class="setting" type="number" min="1" max="5" value="2"></td></tr>
         </table>
         <table class="settingGroup">
           <tr><th>Start Time</th></tr>
@@ -62,7 +66,7 @@
           <tr><td><input type="number" value="120" id="endTime" class="setting"></td></tr>
         </table>
         <table class="settingGroup">
-          <tr><th>Resolution</th></tr>
+          <tr><th>Time Resolution</th></tr>
           <tr><td><input type="number" value="240" id="resolution" class="setting"></td></tr>
         </table>
         <table class="settingGroup">
