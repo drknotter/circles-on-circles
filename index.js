@@ -3,6 +3,13 @@ var handlePointerTemplate = '<span class="handlePointer"><div style="transform: 
 var radiusInputTemplate = '<tr><td><input class="setting" type="number"></td></tr>';
 var angleSpeedInputTemplate = '<tr><td><input class="setting" type="number" step="0.01"></td></tr>';
 
+var SVG_SIZE = 500;
+var SVG_MARGIN = 25;
+var SVG_HEADER = "<?xml version=\"1.0\" standalone=\"no\"?><!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"" + SVG_SIZE + "\" height=\"" + SVG_SIZE + "\" viewBox=\"0 0 " + SVG_SIZE + " " + SVG_SIZE + "\">";
+var SVG_PATH_HEADER = "<path d=\"M";
+var SVG_PATH_FOOTER = "\" fill=\"none\" stroke=\"black\" stroke-width=\"1\"/>";
+var SVG_FOOTER = "</svg>";
+
 var N = 2;
 var M = 3;
 
@@ -23,6 +30,8 @@ var lastPoint;
 var currentSettingsId;
 var colorHandles = [];
 var currentDraggingHandle;
+
+var cachedPath = null;
 
 var colorPickerHue = 180;
 var colorPickerSaturation = 50;
@@ -77,6 +86,11 @@ $( document ).ready(function() {
     } else {
       stopRendering();
     }
+  });
+  $('#render_svg').click(function(event) {
+    stopAnimation();
+    stopRendering();
+    renderSvg()
   });
   $('#save').click(function(event) {
     stopAnimation();
@@ -454,8 +468,11 @@ function paintPath(t) {
     canvasPaint.lineTo(link.p.x, link.p.y);
     canvasPaint.strokeStyle = colorFromTime(t);
     canvasPaint.stroke();
+  } else {
+    cachedPath = [];
   }
   lastPoint = link.p;
+  cachedPath.push(lastPoint);
 }
 
 var currentAnimationTime;
@@ -543,6 +560,46 @@ function renderSegment() {
   } else {
     stopRendering();
   }
+}
+
+function renderSvg() {
+  if (!cachedPath) {
+    return;
+  }
+  var boundingBox = [1e10, 1e10, -1e10, -1e10];
+  for (let i=0; i<cachedPath.length; i++) {
+    boundingBox[0] = Math.min(boundingBox[0], cachedPath[i].x);
+    boundingBox[1] = Math.min(boundingBox[1], cachedPath[i].y);
+    boundingBox[2] = Math.max(boundingBox[2], cachedPath[i].x);
+    boundingBox[3] = Math.max(boundingBox[3], cachedPath[i].y);
+  }
+  var scale = Math.min((SVG_SIZE - 2 * SVG_MARGIN) / (boundingBox[2] - boundingBox[0]), (SVG_SIZE - 2 * SVG_MARGIN) / (boundingBox[3] - boundingBox[1]));
+
+  var svg_string = SVG_HEADER + SVG_PATH_HEADER;
+  for (let i=0; i<cachedPath.length; i++) {
+    let p = [cachedPath[i].x, cachedPath[i].y];
+    for (let d=0; d<2; d++) {
+      p[d] -= boundingBox[d];
+      p[d] *= scale;
+      p[d] += SVG_MARGIN;
+    }
+    svg_string += p[0].toString() + ' ' + p[1].toString() + (i < cachedPath.length - 1 ? 'L' : '');
+  }
+  svg_string += SVG_PATH_FOOTER + SVG_FOOTER;
+
+  let appData = getAppData();
+  var file = new Blob([svg_string], {type: 'text/plain'});
+
+  var a = document.createElement("a");
+  var url = URL.createObjectURL(file);
+  a.href = url;
+  a.download = (appData.currentParametersName ? appData.currentParametersName : 'New Sketch') + '.svg';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function() {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);  
+  }, 0);
 }
 
 function clearPaint() {
